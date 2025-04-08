@@ -1,122 +1,152 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { Button, TextInput, Card } from 'react-native-paper';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import 'react-native-get-random-values';
+import { v4 as uuidv4} from 'uuid';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const API_KEY = "AIzaSyByMPegHzUYz6fnzh8VpJWTKtxjmQsCH4I";
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const markersData = [
+  { id: 1, latitude: 48.8566, longitude: 2.3522, type: 'safety', name: 'Paris, France' },
+  { id: 2, latitude: 40.7128, longitude: -74.0060, type: 'gender', name: 'New York, USA' },
+  { id: 3, latitude: 35.6895, longitude: 139.6917, type: 'cultural', name: 'Tokyo, Japan' },
+];
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+export default function App() {
+  const [selectedFilter, setSelectedFilter] = useState(null);
+  const [region, setRegion] = useState({
+    latitude: 20.0,
+    longitude: 0.0,
+    latitudeDelta: 50,
+    longitudeDelta: 50,
+  });
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [searchMarker, setSearchMarker] = useState(null);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const filteredMarkers = selectedFilter
+    ? markersData.filter(marker => marker.type === selectedFilter)
+    : markersData;
+
+  const handleReset = () => {
+      setSelectedFilter(null);
+      setSearchMarker(null); // Clear the search marker when resetting
+    };
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      {/* Search Bar */}
+      <GooglePlacesAutocomplete
+        placeholder="Search for a city..."
+        fetchDetails={true}
+        onPress={(data, details = null) => {
+          if (details) {
+            const { lat, lng } = details.geometry.location;
+            setRegion({
+              latitude: lat,
+              longitude: lng,
+              latitudeDelta: 10,
+              longitudeDelta: 10,
+            });
+            setSearchMarker({
+                latitude: lat,
+                longitude: lng,
+                name: data.description,
+            });
+          }
+        }}
+        query={{
+          key: API_KEY,
+          language: 'en',
+        }}
+        styles={{
+          container: styles.searchContainer,
+          textInput: styles.searchInput,
+        }}
+      />
+
+      {/* Map */}
+      <MapView style={styles.map} region={region}>
+        {filteredMarkers.map(marker => (
+          <Marker
+            key={marker.id}
+            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+            pinColor={marker.type === 'safety' ? 'blue' :
+                      marker.type === 'gender' ? 'pink' : 'purple'}
+            onPress={() => setSelectedMarker(marker)}
+          />
+        ))}
+
+        {/* Render Search Marker */}
+        {searchMarker && (
+          <Marker
+            key={'search-marker'}
+            coordinate={{ latitude: searchMarker.latitude, longitude: searchMarker.longitude }}
+            pinColor='green'
+            title={searchMarker.name || "Searched Location"}
+            description="Your search result"
+          />
+        )}
+      </MapView>
+
+      {/* Marker Info */}
+      {selectedMarker && (
+        <Card style={styles.infoCard}>
+          <Card.Content>
+            <Text style={styles.infoText}>{selectedMarker.name}</Text>
+            <Text>Type: {selectedMarker.type}</Text>
+          </Card.Content>
+        </Card>
+      )}
+
+      {/* Filter Buttons */}
+      <View style={styles.filterContainer}>
+        <Button mode="contained" onPress={() => setSelectedFilter('safety')}>Safety</Button>
+        <Button mode="contained" onPress={() => setSelectedFilter('gender')}>Gender</Button>
+        <Button mode="contained" onPress={() => setSelectedFilter('cultural')}>Cultural</Button>
+        <Button mode="contained" onPress={() => setSelectedFilter(null)}>Reset</Button>
+        <Button mode="outlined" onPress={() => setSearchMarker(null)}>Clear Search</Button>
+      </View>
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-            <Section title="SAFE TRAVELS">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: { flex: 1 },
+  map: { flex: 1 },
+  filterContainer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 10,
+    right: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  searchContainer: {
+    position: 'absolute',
+    top: 40,
+    left: 10,
+    right: 10,
+    zIndex: 1,
   },
-  sectionDescription: {
-    marginTop: 8,
+  searchInput: {
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+  },
+  infoCard: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
+  },
+  infoText: {
     fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+    fontWeight: 'bold',
   },
 });
 
-export default App;
