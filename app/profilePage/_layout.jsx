@@ -3,18 +3,25 @@ import { Stack } from "expo-router";
 const ProfilePageLayout = () => {
     return (
         <Stack
-        screenOptions={{
-            headerStyle: {
-            backgroundColor: '#000000',
-            },
-            headerTintColor: '#fff',
-            headerTitleAlign: 'center',
-            headerTitleStyle: {
-            fontWeight: 'bold',
-            fontFamily: 'poppins',
-            },
-        }}>
-        <Stack.Screen name="profilePage" options ={{title: 'Profile Page'}} />
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: '#ffffff', // Clean white background
+                    shadowColor: 'transparent', // Remove shadow on iOS
+                    elevation: 0, // Remove shadow on Android
+                },
+                headerTintColor: '#111', // Dark text/icons
+                headerTitleAlign: 'center',
+                headerTitleStyle: {
+                    fontWeight: '600',
+                    fontSize: 20,
+                    fontFamily: 'poppins',
+                },
+            }}
+        >
+            <Stack.Screen
+                name="index"
+                options={{ title: 'My Profile' }} // This title will show in the header
+            />
         </Stack>
     );
 };
