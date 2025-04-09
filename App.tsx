@@ -38,7 +38,7 @@ export default function App() {
     <View style={styles.container}>
       {/* Search Bar */}
       <GooglePlacesAutocomplete
-        placeholder="Search for a destination..."
+        placeholder="Search..."
         fetchDetails={true}
         onPress={(data, details = null) => {
           if (details) {
