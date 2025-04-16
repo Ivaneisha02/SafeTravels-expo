@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useRouter } from "expo-router";
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -22,6 +23,7 @@ const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const navigation = useNavigation();
+  const router = useRouter();
 
   const handleSearch = (text) => {
     setSearchText(text);
@@ -113,6 +115,7 @@ const HomeScreen = () => {
       <View style={styles.bottomNav}>
         <TouchableOpacity onPress={() => navigateTo('friendsPage')}><Text style={styles.navItem}>Friends</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo('explorePage')}><Text style={styles.navItem}>Explore</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigateTo('createPostPage')}><Text style={styles.navItem}>Create Post</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo('profilePage')}><Text style={styles.navItem}>Profile</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo('interactiveMap')}><Text style={styles.navItem}>Interactive Map</Text></TouchableOpacity>
       </View>
