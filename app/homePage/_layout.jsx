@@ -4,6 +4,7 @@ const HomePageLayout = () => {
     return (
         <Stack
         screenOptions={{
+            headerShown: false,
             headerStyle: {
             backgroundColor: '#000000',
             },
@@ -14,7 +15,6 @@ const HomePageLayout = () => {
             fontFamily: 'poppins',
             },
         }}>
-        <Stack.Screen name="homePage" options ={{title: 'Home Page'}} />
         </Stack>
     );
 };
