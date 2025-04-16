@@ -41,20 +41,24 @@ export default function App() {
         placeholder="Search for a destination"
         fetchDetails={true}
         onPress={(data, details = null) => {
+          alert('onPress fired');
+          console.log('Data:', data);
+          console.log('Details:', details);
           if (details) {
             const { lat, lng } = details.geometry.location;
             setRegion({
               latitude: lat,
               longitude: lng,
-              latitudeDelta: 10,
-              longitudeDelta: 10,
+              latitudeDelta: 5,
+              longitudeDelta: 5,
             });
             setSearchMarker({
                 latitude: lat,
                 longitude: lng,
                 name: data.description,
             });
-          }
+          } else {
+              console.warn('No details.');  }
         }}
         query={{
           key: API_KEY,
