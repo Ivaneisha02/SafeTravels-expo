@@ -1,8 +1,24 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, FlatList, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+export const meta = {
+  title: 'My Profile',
+};
 
-const posts = [
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+
+const screenWidth = Dimensions.get('window').width;
+
+const defaultPosts = [
   { id: '1', uri: 'https://i.pinimg.com/474x/ea/99/5b/ea995bbea5e7ae1e385ef196a8587277.jpg' },
   { id: '2', uri: 'https://i.pinimg.com/736x/02/ca/b6/02cab6f2c5c4c1cb3c289d7e6d551448.jpg' },
   { id: '3', uri: 'https://i.pinimg.com/736x/5f/f1/eb/5ff1eb843659cba321c5d2d0493d15e6.jpg' },
@@ -13,62 +29,127 @@ const posts = [
   { id: '8', uri: 'https://i.pinimg.com/474x/40/b7/4f/40b74f3ebc3e196bdaa4d43bcd76d605.jpg' },
 ];
 
-const screenWidth = Dimensions.get('window').width;
+export default function ProfileScreen() {
+  const router = useRouter();
+  const [savedPosts, setSavedPosts] = useState([]);
 
-const ProfileScreen = () => {
-  const navigation = useNavigation();
+  const [profile, setProfile] = useState({
+    username: '@blacktraveler',
+    bio: '✈️ Traveling the world, one city at a time. Sharing stories, smiles & sunshine 🌍✨',
+    profileImage: 'https://i.pinimg.com/474x/7e/19/3c/7e193c116229c72d9e01e00ac59734ba.jpg',
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadData = async () => {
+        try {
+          const storedPosts = await AsyncStorage.getItem('userPosts');
+          const userPosts = storedPosts ? JSON.parse(storedPosts) : [];
+          setSavedPosts(userPosts);
+
+          const storedProfile = await AsyncStorage.getItem('userProfile');
+          if (storedProfile) {
+            const data = JSON.parse(storedProfile);
+            setProfile({
+              username: data.username || '@blacktraveler',
+              bio: data.bio || '✈️ Traveling the world, one city at a time. Sharing stories, smiles & sunshine 🌍✨',
+              profileImage: data.profileImage || 'https://i.pinimg.com/474x/7e/19/3c/7e193c116229c72d9e01e00ac59734ba.jpg',
+            });
+          }
+        } catch (err) {
+          console.log('Error loading data:', err);
+        }
+      };
+      loadData();
+    }, [])
+  );
+
+  const deletePost = async (postId) => {
+    try {
+      const stored = await AsyncStorage.getItem('userPosts');
+      const posts = stored ? JSON.parse(stored) : [];
+      const filtered = posts.filter((p) => p.id !== postId);
+      await AsyncStorage.setItem('userPosts', JSON.stringify(filtered));
+      setSavedPosts(filtered);
+    } catch (err) {
+      console.log('Error deleting post:', err);
+    }
+  };
+
+  const combinedPosts = [
+    ...savedPosts.map((p) => ({ ...p, isUser: true })),
+    ...defaultPosts.map((p) => ({ ...p, isUser: false })),
+  ];
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('PostDetail', { post: item })}
-    >
-      <Image
-        source={{ uri: item.uri }}
-        style={styles.postImage}
-      />
-    </TouchableOpacity>
+    <View style={styles.postWrapper}>
+      <TouchableOpacity
+        onPress={() =>
+          router.push({
+            pathname: '/profilePage/postDetail',
+            params: { uri: item.uri, caption: item.caption || '' },
+          })
+        }
+      >
+        <Image source={{ uri: item.uri }} style={styles.postImage} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.trashIcon}
+        onPress={item.isUser ? () => deletePost(item.id) : null}
+        activeOpacity={item.isUser ? 0.7 : 1}
+      >
+        <Ionicons name="trash-outline" size={18} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderHeader = () => (
+    <View style={styles.profileSection}>
+      <Image source={{ uri: profile.profileImage }} style={styles.profileImage} />
+      <Text style={styles.username}>{profile.username}</Text>
+      <View style={styles.stats}>
+        <View style={styles.statBox}>
+          <Text style={styles.statNumber}>350</Text>
+          <Text style={styles.statLabel}>Followers</Text>
+        </View>
+        <View style={styles.statBox}>
+          <Text style={styles.statNumber}>180</Text>
+          <Text style={styles.statLabel}>Following</Text>
+        </View>
+      </View>
+      <Text style={styles.bioText}>{profile.bio}</Text>
+
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => router.push('/profilePage/editProfile')}
+      >
+        <Text style={styles.editButtonText}>Edit Profile</Text>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.profileSection}>
-        <Image
-          source={{ uri: 'https://i.pinimg.com/474x/7e/19/3c/7e193c116229c72d9e01e00ac59734ba.jpg' }}
-          style={styles.profileImage}
-        />
-        <Text style={styles.username}>@blacktraveler</Text>
-        <View style={styles.stats}>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>350</Text>
-            <Text style={styles.statLabel}>Followers</Text>
-          </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statNumber}>180</Text>
-            <Text style={styles.statLabel}>Following</Text>
-          </View>
-        </View>
-        <Text style={styles.bioText}>
-          ✈️ Traveling the world, one city at a time. Sharing stories, smiles & sunshine 🌍✨
-        </Text>
-
-        {/* Edit Profile Button */}
-        <TouchableOpacity style={styles.editButton}>
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Grid of Posts */}
+    <View style={{ flex: 1 }}>
       <FlatList
-        data={posts}
+        data={combinedPosts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={4}
-        scrollEnabled={false}
         contentContainerStyle={styles.grid}
+        ListHeaderComponent={renderHeader}
       />
-    </ScrollView>
+
+      {/* Floating "+" button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/profilePage/addPost')}
+      >
+        <Text style={styles.plusButtonText}>+</Text>
+      </TouchableOpacity>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -129,14 +210,42 @@ const styles = StyleSheet.create({
   },
   grid: {
     paddingHorizontal: 4,
-    marginTop: 10,
+    paddingBottom: 100,
+  },
+  postWrapper: {
+    position: 'relative',
+    margin: 4,
   },
   postImage: {
-    width: 370, // Smaller size
-    height: 370,
-    margin: 10,
-    borderRadius: 10,
+    width: (screenWidth - 48) / 4,
+    height: (screenWidth - 48) / 4,
+    borderRadius: 8,
+  },
+  trashIcon: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 12,
+    padding: 4,
+    zIndex: 1,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    backgroundColor: '#000',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+    elevation: 4,
+  },
+  plusButtonText: {
+    color: '#fff',
+    fontSize: 32,
+    fontWeight: '600',
   },
 });
-
-export default ProfileScreen;
