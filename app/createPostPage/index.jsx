@@ -21,7 +21,7 @@ function CreatePost() {
                 <h1>Create A Post</h1>
                 <div className="inputGp">
                     <label> Image:</label>
-                    <input type="file" accept="image/*"
+                    <input type="file"
                     onChange={(event) => {setImage(event.target.value);}}/>
                 </div>
                 <div className="inputGp">

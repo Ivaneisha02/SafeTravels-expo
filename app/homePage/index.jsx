@@ -4,43 +4,36 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  TextInput,
   TouchableOpacity,
   Image,
   SafeAreaView,
   ScrollView,
   Modal,
-  Pressable
+  Pressable,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { getDocs, collection } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { getDocs, collection } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
 
-const screenWidth = Dimensions.get('window').width;
-
-function HomeScreen () {
+const HomeScreen = () => {
   const [postLists, setPostList] = useState([]);
-  const postsCollectionRef = collection(db, "posts");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const postsCollectionRef = collection(db, 'posts');
+  const router = useRouter();
+  const navigation = useNavigation();
 
   useEffect(() => {
     const getPosts = async () => {
       const data = await getDocs(postsCollectionRef);
       setPostList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
     };
-
     getPosts();
-  });
-  
-  const [searchText, setSearchText] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);0
-  const [selectedImage, setSelectedImage] = useState(null);
-  const navigation = useNavigation();
-  const router = useRouter();
+  }, []);
 
-  const handleSearch = (text) => {
-    setSearchText(text);
+  const navigateTo = (screenName) => {
+    navigation.navigate(screenName);
   };
 
   const handleImageClick = (imageUri) => {
@@ -48,115 +41,26 @@ function HomeScreen () {
     setModalVisible(true);
   };
 
-  const navigateTo = (screenName) => {
-    navigation.navigate(screenName);
-  };
-
-  const popularLocations = [
-    {
-      id: '1',
-      image: 'https://images.unsplash.com/photo-1569406829354-eb0cc9e653e8?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      label: 'Portugal',
-    },
-    {
-      id: '2',
-      image: 'https://images.unsplash.com/photo-1709595601170-5987702951fd?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      label: 'St. Kitts',
-    },
-  ];
-
-  const recentlyViewed = [
-    {
-      id: '3',
-      image: 'https://images.unsplash.com/photo-1670234069735-a9b32837cee4?w=700',
-      label: 'Seychelles',
-    },
-    {
-      id: '4',
-      image: 'https://plus.unsplash.com/premium_photo-1670963963921-a2da81ee17c7?w=700',
-      label: 'Switzerland',
-    },
-  ];
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View>
-      <div className="homePage">
-        {postLists.map((post) => {
-        return (
-          <div className="post">
-            <div className="postHeader">
-              <div className="image">
-                <h1> {post.image}</h1>
-              </div>
-            </div>
-            <div className="postcaption"> {post.caption} </div>
-            <h3>@username</h3>
-          </div>
-        );
-      })};
-      </div>
-      </View>
+        {postLists.map((post) => (
+          <View key={post.id} style={styles.postContainer}>
+            <TouchableOpacity onPress={() => handleImageClick(post.image)}>
+              <Image source={{ uri: post.image }} style={styles.postImage} />
+            </TouchableOpacity>
+            <Text style={styles.caption}>{post.caption}</Text>
+            <Text style={styles.username}>@username</Text>
+          </View>
+        ))}
       </ScrollView>
-      {/* <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.topBar}>
-          <TouchableOpacity>
-            <Ionicons name="person-circle" size={32} color="black" />
-          </TouchableOpacity>
-          <TextInput
-            placeholder="Search here..."
-            style={styles.searchBar}
-            value={searchText}
-            onChangeText={handleSearch}
-          />
-        </View>
-
-        <Text style={styles.sectionTitle}>Popular</Text>
-        <View style={styles.imageGrid}>
-          {popularLocations.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.imageItem}
-              onPress={() => handleImageClick(item.image)}
-            >
-              <Image source={{ uri: item.image }} style={styles.image} />
-              <Text style={styles.imageLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={styles.sectionTitle}>Recently Viewed</Text>
-        <View style={styles.imageGrid}>
-          {recentlyViewed.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.imageItem}
-              onPress={() => handleImageClick(item.image)}
-            >
-              <Image
-                source={{ uri: item.image }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-              <Text style={styles.imageLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView> */}
 
       <View style={styles.bottomNav}>
         <TouchableOpacity onPress={() => navigateTo('friendsPage')}><Text style={styles.navItem}>Friends</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo('explorePage')}><Text style={styles.navItem}>Explore</Text></TouchableOpacity>
-        <TouchableOpacity
-                style = {styles.navItem}
-                onPress={() => {
-                  router.push('createPostPage');
-                }}>
-                <Text>Create Post</Text>
-              </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('createPostPage')}><Text style={styles.navItem}>Create</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo('profilePage')}><Text style={styles.navItem}>Profile</Text></TouchableOpacity>
-        <TouchableOpacity onPress={() => navigateTo('interactiveMap')}><Text style={styles.navItem}>Interactive Map</Text></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigateTo('interactiveMap')}><Text style={styles.navItem}>Map</Text></TouchableOpacity>
       </View>
 
       <Modal
@@ -180,71 +84,60 @@ function HomeScreen () {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   scrollContainer: {
     padding: 16,
-    paddingBottom: 80,
+    paddingBottom: 100,
   },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+  postContainer: {
+    backgroundColor: '#fff',
     marginBottom: 20,
+    borderRadius: 16,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
   },
-  searchBar: {
-    flex: 1,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    height: 40,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginVertical: 10,
-  },
-  imageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  imageItem: {
-    width: '48%',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
-  },
-  image: {
+  postImage: {
     width: '100%',
-    aspectRatio: 1,
-    borderRadius: 10,
-    marginBottom: 5,
+    height: 300,
+    borderRadius: 12,
+    marginBottom: 10,
+    backgroundColor: '#e1e4e8',
   },
-  imageLabel: {
-    textAlign: 'center',
-    fontSize: 20,
-    fontFamily: 'Georgia',
-    fontWeight: '600',
+  caption: {
+    fontSize: 16,
     color: '#333',
+    marginBottom: 4,
+    fontWeight: '500',
+  },
+  username: {
+    fontSize: 14,
+    color: '#888',
+    fontStyle: 'italic',
   },
   bottomNav: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
     height: 60,
-    backgroundColor: '#eee',
+    backgroundColor: '#fff',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 8,
   },
   navItem: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#333',
   },
   modalOverlay: {
