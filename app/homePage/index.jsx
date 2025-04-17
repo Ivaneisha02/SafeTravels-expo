@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,10 +15,24 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "../firebaseConfig";
 
 const screenWidth = Dimensions.get('window').width;
 
-const HomeScreen = () => {
+function HomeScreen () {
+  const [postLists, setPostList] = useState([]);
+  const postsCollectionRef = collection(db, "posts");
+
+  useEffect(() => {
+    const getPosts = async () => {
+      const data = await getDocs(postsCollectionRef);
+      setPostList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    };
+
+    getPosts();
+  });
+  
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);0
   const [selectedImage, setSelectedImage] = useState(null);
@@ -67,6 +81,25 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View>
+      <div className="homePage">
+        {postLists.map((post) => {
+        return (
+          <div className="post">
+            <div className="postHeader">
+              <div className="image">
+                <h1> {post.image}</h1>
+              </div>
+            </div>
+            <div className="postcaption"> {post.caption} </div>
+            <h3>@username</h3>
+          </div>
+        );
+      })};
+      </div>
+      </View>
+      </ScrollView>
+      {/* <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.topBar}>
           <TouchableOpacity>
             <Ionicons name="person-circle" size={32} color="black" />
@@ -110,7 +143,7 @@ const HomeScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-      </ScrollView>
+      </ScrollView> */}
 
       <View style={styles.bottomNav}>
         <TouchableOpacity onPress={() => navigateTo('friendsPage')}><Text style={styles.navItem}>Friends</Text></TouchableOpacity>
