@@ -10,6 +10,7 @@ import {
   ScrollView,
   Modal,
   Pressable,
+  TextInput, // Added this
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
@@ -18,6 +19,8 @@ import { db } from '../firebaseConfig';
 
 const HomeScreen = () => {
   const [postLists, setPostList] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]); // for search results
+  const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const postsCollectionRef = collection(db, 'posts');
@@ -27,10 +30,26 @@ const HomeScreen = () => {
   useEffect(() => {
     const getPosts = async () => {
       const data = await getDocs(postsCollectionRef);
-      setPostList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+      const posts = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      setPostList(posts);
+      setFilteredPosts(posts); // initialize filtered
     };
     getPosts();
   }, []);
+
+  const handleSearch = (text) => {
+    setSearchText(text);
+    const lowerText = text.toLowerCase();
+  
+    const filtered = postLists.filter((post) => {
+      const captionMatch = post.caption?.toLowerCase().includes(lowerText);
+      const tagMatch = post.tag?.some((tag) => tag.toLowerCase().includes(lowerText));
+      return captionMatch || tagMatch;
+    });
+  
+    setFilteredPosts(filtered);
+  };
+  
 
   const navigateTo = (screenName) => {
     navigation.navigate(screenName);
@@ -44,17 +63,49 @@ const HomeScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {postLists.map((post) => (
+        {/* 🔍 Search Bar */}
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search captions..."
+          value={searchText}
+          onChangeText={handleSearch}
+        />
+
+        {filteredPosts.map((post) => (
           <View key={post.id} style={styles.postContainer}>
             <TouchableOpacity onPress={() => handleImageClick(post.image)}>
               <Image source={{ uri: post.image }} style={styles.postImage} />
             </TouchableOpacity>
             <Text style={styles.caption}>{post.caption}</Text>
-            <Text style={styles.username}>@username</Text>
+            <Text style={styles.username}>@{post.username}</Text>
+            {post.tag && (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 4 }}>
+            {post.tag.map((tag, idx) => (
+              <Text
+                key={idx}
+                style={{
+                  backgroundColor: '#e0f7fa',
+                  color: '#007bff',
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  marginRight: 6,
+                  marginBottom: 6,
+                  borderRadius: 12,
+                  fontSize: 12,
+                }}
+              >
+                #{tag}
+              </Text>
+            ))}
+          </View>
+        )}
           </View>
         ))}
+           
+
       </ScrollView>
 
+      {/* ⬇ Bottom Nav */}
       <View style={styles.bottomNav}>
         <TouchableOpacity onPress={() => navigateTo('friendsPage')}><Text style={styles.navItem}>Friends</Text></TouchableOpacity>
         <TouchableOpacity onPress={() => navigateTo('explorePage')}><Text style={styles.navItem}>Explore</Text></TouchableOpacity>
@@ -63,6 +114,7 @@ const HomeScreen = () => {
         <TouchableOpacity onPress={() => navigateTo('interactiveMap')}><Text style={styles.navItem}>Map</Text></TouchableOpacity>
       </View>
 
+      {/* 🔍 Image Modal */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -89,6 +141,14 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: 16,
     paddingBottom: 100,
+  },
+  searchBar: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 16,
+    borderColor: '#ccc',
+    borderWidth: 1,
   },
   postContainer: {
     backgroundColor: '#fff',
