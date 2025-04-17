@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 
-const FriendsPageLayout = () => {
+const CreatePostPageLayout = () => {
     return (
         <Stack
         screenOptions={{
@@ -14,9 +14,9 @@ const FriendsPageLayout = () => {
             fontFamily: 'poppins',
             },
         }}>
-        <Stack.Screen name="friendsPage" options ={{title: 'Friends Page'}} />
+        <Stack.Screen name="createPostPage" options ={{title: 'Create a Post'}} />
         </Stack>
     );
 };
 
-export default FriendsPageLayout;
+export default CreatePostPageLayout;
