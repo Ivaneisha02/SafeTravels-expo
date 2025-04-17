@@ -50,7 +50,7 @@
     "@react-native-community/cli-platform-android": "16.0.2",
     "@react-native-community/cli-platform-ios": "16.0.2",
     "@react-native-community/cli-server-api": "16.0.2",
-    "@react-native/metro-config": "^0.79.0",
+    "@react-native/metro-config": "^0.79.1",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",

@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4b092039-13d6-4bed-b68e-ee3828e63d3a" name="Changes" comment="interactive map with filters">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/tempapp/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/com/tempapp/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/interactiveMap/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/interactiveMap/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metro.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/metro.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/interactiveMap/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/interactiveMap/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
