@@ -4,6 +4,7 @@ const HomePageLayout = () => {
     return (
         <Stack
         screenOptions={{
+            headerShown: false,
             headerStyle: {
             backgroundColor: '#000000',
             },

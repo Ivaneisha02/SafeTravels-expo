@@ -4,6 +4,7 @@ const IntMapLayout = () => {
     return (
         <Stack
         screenOptions={{
+            headerShown: false,
             headerStyle: {
             backgroundColor: '#000000',
             },

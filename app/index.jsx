@@ -1,9 +1,9 @@
 import { Text, View, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 const LoginScreen = () =>{
-  const router = useRouter();
-
-  return (
+  return <Redirect href="/auth" />;
+  /*return (
     <ScrollView>
       <Text>Welcome back! Please enter your details.</Text>
 
@@ -49,59 +49,25 @@ const LoginScreen = () =>{
       <TouchableOpacity
         style = {styles.button}
         onPress={() => {
-          router.push("/profilePage");
+          router.push("/homePage");
         }}>
         <Text>Sign In</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style = {styles.button}
         onPress={() => {
-          router.push("/profilePage");
+          router.push("/homePage");
         }}>
         <Text>Sign In With Google</Text>
       </TouchableOpacity>
 
       <Text>Don't have an account? Sign up for free!</Text>
 
-      <TouchableOpacity
-        style = {styles.button}
-        onPress={() => {
-          router.push("/homePage");
-        }}>
-        <Text>Goes to home page</Text>
-      </TouchableOpacity>
 
-      <TouchableOpacity
-        style = {styles.button}
-        onPress={() => {
-          router.push("/profilePage");
-        }}>
-        <Text>Goes to profile page</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style = {styles.button}
-        onPress={() => {
-          router.push("/friendsPage");
-        }}>
-        <Text>Goes to friends page</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style = {styles.button}
-        onPress={() => {
-          router.push("/explorePage");
-        }}>
-        <Text>Goes to explore page</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style = {styles.button}
-        onPress={() => {
-          router.push("/interactiveMap");
-        }}>
-        <Text>Goes to map page</Text>
-      </TouchableOpacity>
+      
     </ScrollView>
-  );
-}
+  );*/
+  }
 
 const styles = StyleSheet.create({
   container: {
